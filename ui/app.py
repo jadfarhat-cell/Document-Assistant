@@ -177,7 +177,7 @@ def clear_index():
     return make_toast("Cleared", "All indexed documents have been removed", "success")
 
 
-with gr.Blocks(title="RAG Document Assistant", theme=theme, css=custom_css) as demo:
+with gr.Blocks(title="RAG Document Assistant") as demo:
     toast_output = gr.HTML(elem_classes=["toast-container"])
 
     gr.HTML("""
@@ -242,4 +242,4 @@ with gr.Blocks(title="RAG Document Assistant", theme=theme, css=custom_css) as d
 
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7861)
+    demo.launch(server_name="0.0.0.0", server_port=7861, theme=theme, css=custom_css)
