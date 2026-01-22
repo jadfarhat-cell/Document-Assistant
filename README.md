@@ -19,8 +19,8 @@ A local RAG (Retrieval-Augmented Generation) powered document assistant that let
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/rag-document-assistant.git
-cd rag-document-assistant
+git clone https://github.com/jadfarhat-cell/Document-Assistant.git
+cd Document-Assistant
 ```
 
 2. Create a virtual environment and install dependencies:
