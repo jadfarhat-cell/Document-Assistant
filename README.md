@@ -90,6 +90,57 @@ Configure via environment variables (prefix with `RAG_`):
 | `RAG_CHUNK_OVERLAP` | 50 | Overlap between chunks |
 | `RAG_TOP_K` | 5 | Number of documents to retrieve |
 
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              INGESTION PIPELINE                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌─────────────┐  │
+│   │ Document │───>│   Loader     │───>│   Chunker    │───>│  Embedder   │  │
+│   │ (PDF,    │    │ (Extract     │    │ (Split into  │    │ (Generate   │  │
+│   │  DOCX,   │    │  text)       │    │  512-token   │    │  vectors)   │  │
+│   │  MD...)  │    │              │    │  chunks)     │    │             │  │
+│   └──────────┘    └──────────────┘    └──────────────┘    └──────┬──────┘  │
+│                                                                   │         │
+│                                                                   ▼         │
+│                                                           ┌─────────────┐   │
+│                                                           │  ChromaDB   │   │
+│                                                           │  (Vector    │   │
+│                                                           │   Store)    │   │
+│                                                           └─────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                QUERY PIPELINE                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌─────────────┐  │
+│   │  User    │───>│  Embedder    │───>│  Retriever   │───>│   Ollama    │  │
+│   │  Query   │    │  (Vectorize  │    │  (Semantic   │    │   (LLM)     │  │
+│   │          │    │   query)     │    │   search)    │    │             │  │
+│   └──────────┘    └──────────────┘    └──────┬───────┘    └──────┬──────┘  │
+│                                              │                    │         │
+│                                              ▼                    ▼         │
+│                                       ┌─────────────┐     ┌─────────────┐  │
+│                                       │  ChromaDB   │     │  Response   │  │
+│                                       │  (Top-K     │     │  (Answer +  │  │
+│                                       │   results)  │     │   Sources)  │  │
+│                                       └─────────────┘     └─────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Components
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Document Loader | PyPDF2, python-docx | Extract text from various file formats |
+| Text Chunker | Custom recursive splitter | Split documents into overlapping chunks |
+| Embedder | sentence-transformers (all-MiniLM-L6-v2) | Convert text to 384-dim vectors |
+| Vector Store | ChromaDB | Store and search embeddings with cosine similarity |
+| LLM | Ollama (llama3.2) | Generate answers from retrieved context |
+
 ## Project Structure
 
 ```
